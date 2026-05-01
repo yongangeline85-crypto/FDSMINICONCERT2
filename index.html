@@ -191,3 +191,42 @@ Please take your seat. Data synchronization is almost complete.
     </script>
 </body>
 </html>
+let scale = 1;
+    let audio = document.getElementById('audioPlayer');
+    let hasInteracted = false;
+
+    // 核心：只要用户触摸或点击页面任何地方，立刻解锁音频
+    function unlockAudio() {
+        if (!hasInteracted) {
+            audio.play().then(() => {
+                hasInteracted = true;
+                console.log("Audio unlocked!");
+            }).catch(e => console.log("Still waiting for interaction"));
+        }
+    }
+
+    // 监听全局点击和触摸
+    document.body.addEventListener('click', unlockAudio);
+    document.body.addEventListener('touchstart', unlockAudio);
+
+    function systemError() {
+        // 解锁音频
+        unlockAudio();
+        
+        scale += 0.5;
+        let superBtn = document.getElementById('superYesBtn');
+        superBtn.style.transform = `scale(${scale})`;
+        
+        const errors = ["ERROR", "ACCESS DENIED", "INSUFFICIENT DESIRE", "RETRY"];
+        document.getElementById('normalYesBtn').innerText = errors[Math.floor(Math.random() * errors.length)];
+        
+        // 增加震动感
+        superBtn.style.boxShadow = `0 0 ${scale * 15}px #00ff41`;
+    }
+
+    function grantAccess() {
+        // 确保进入第二页时音乐一定在响
+        audio.play(); 
+        document.getElementById('quiz-container').style.display = 'none';
+        document.getElementById('finalMessage').style.display = 'block';
+    }
