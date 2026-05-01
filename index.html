@@ -3,224 +3,207 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ERA:X—404 | NEON PROTOCOL</title>
+    <title>ERA:X—404 | TERMINAL</title>
     <style>
         :root {
-            --neon-green: #00ff41;
-            --neon-pink: #ff003c;
-            --bg-black: #050505;
+            --neon: #00ff41;
+            --pink: #ff003c;
+            --dim: rgba(0, 255, 65, 0.1);
+            --bg: #000000;
         }
 
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg-black);
-            color: var(--neon-green);
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body, html {
+            margin: 0; padding: 0;
+            background: var(--bg);
+            color: var(--neon);
             font-family: 'Courier New', Courier, monospace;
-            display: flex;
+            overflow: hidden;
+            height: 100%;
+            width: 100%;
+        }
+
+        /* 扫描线背景 */
+        body::after {
+            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.03));
+            background-size: 100% 4px, 4px 100%; z-index: 999; pointer-events: none;
+        }
+
+        /* 页面切换逻辑 */
+        .page {
+            display: none;
+            height: 100vh;
+            width: 100vw;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
-            overflow: hidden;
-            touch-action: manipulation;
-        }
-
-        /* 扫描线效果 */
-        body::before {
-            content: " ";
-            display: block;
             position: absolute;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            z-index: 100;
-            background-size: 100% 2px, 3px 100%;
-            pointer-events: none;
-        }
-
-        #quiz-container {
+            padding: 25px;
             text-align: center;
-            padding: 20px;
-            z-index: 10;
         }
 
-        .title-glitch {
-            font-size: 1.4rem;
-            font-weight: bold;
-            margin-bottom: 40px;
-            line-height: 1.6;
-            text-transform: uppercase;
-            text-shadow: 0 0 10px var(--neon-green);
-            animation: glitch 1s linear infinite;
-        }
+        .active { display: flex; animation: fadeIn 0.6s ease-in-out; }
 
-        .btn-group {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 25px;
-        }
-
+        /* 按钮通用样式 */
         button {
-            padding: 15px 40px;
-            border: 1px solid var(--neon-green);
+            padding: 18px 40px;
+            border: 1px solid var(--neon);
             background: transparent;
-            color: var(--neon-green);
-            font-family: 'Courier New', Courier, monospace;
+            color: var(--neon);
+            font-family: inherit;
             font-weight: bold;
             cursor: pointer;
-            text-transform: uppercase;
             letter-spacing: 3px;
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
+            transition: all 0.3s;
+            text-transform: uppercase;
         }
 
-        #superYesBtn {
-            background: rgba(0, 255, 65, 0.05);
-            box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
+        /* 第一页：载入 */
+        .loader-bar {
+            width: 200px; height: 1px;
+            background: #222; margin: 30px 0;
+            position: relative; overflow: hidden;
+        }
+        .loader-bar::after {
+            content: ""; position: absolute; left: -100%;
+            width: 100%; height: 100%;
+            background: var(--neon);
+            animation: loading 2s infinite;
         }
 
-        #superYesBtn:hover {
-            background: var(--neon-green);
-            color: #000;
-            box-shadow: 0 0 40px var(--neon-green);
+        /* 第二页：决策 */
+        .btn-group { display: flex; flex-direction: column; gap: 30px; align-items: center; }
+        #normalYesBtn { border-color: #444; color: #666; font-size: 0.8rem; }
+        #superYesBtn { 
+            background: var(--dim); 
+            box-shadow: 0 0 15px var(--dim); 
+            z-index: 100;
         }
 
-        #normalYesBtn {
-            border-color: #444;
-            color: #666;
-            font-size: 0.8rem;
+        /* 错误提示 */
+        .warning-popup {
+            position: fixed; color: var(--pink); font-size: 10px;
+            z-index: 50; pointer-events: none;
+            animation: fadeOut 1s forwards;
+            text-shadow: 0 0 5px var(--pink);
         }
 
-        /* 最终消息框 */
-        #finalMessage {
-            display: none;
-            width: 85%;
-            max-width: 500px;
-            padding: 25px;
-            border: 1px solid var(--neon-green);
-            background: rgba(0, 255, 65, 0.02);
-            box-shadow: 0 0 20px rgba(0, 255, 65, 0.1);
-            position: relative;
-        }
+        /* 第三页：结果 */
+        #page3 { overflow-y: auto; display: none; }
+        #page3.active { display: block; padding-top: 50px; }
+        .content-box { white-space: pre-line; line-height: 1.8; font-size: 0.85rem; text-align: left; max-width: 450px; margin: 0 auto; }
+        .poster-box { margin: 25px auto; border: 1px solid var(--neon); padding: 5px; max-width: 400px; }
+        .poster-box img { width: 100%; display: block; filter: contrast(110%) sepia(90%) hue-rotate(85deg); }
+        .dancer-id { font-size: 0.7rem; margin: 25px 0; border-top: 1px dashed var(--neon); padding-top: 15px; opacity: 0.7; }
 
-        .status-header {
-            color: var(--neon-pink);
-            font-size: 0.9rem;
-            margin-bottom: 20px;
-            text-shadow: 0 0 5px var(--neon-pink);
-            letter-spacing: 2px;
-        }
-
-        .content-box {
-            white-space: pre-line;
-            line-height: 1.8;
-            font-size: 0.85rem;
-            color: var(--neon-green);
-            text-align: left;
-        }
-
-        .poster-box {
-            margin-top: 25px;
-            border: 1px solid var(--neon-green);
-            padding: 5px;
-            background: #000;
-        }
-
-        .poster-box img {
-            width: 100%;
-            display: block;
-            filter: contrast(120%) brightness(80%) sepia(100%) hue-rotate(80deg);
-        }
-
-        /* 故障动画 */
-        @keyframes glitch {
-            0% { text-shadow: 2px 2px var(--neon-pink); }
-            25% { text-shadow: -2px -2px var(--neon-pink); }
-            50% { text-shadow: 2px -2px var(--neon-pink); }
-            75% { text-shadow: -2px 2px var(--neon-pink); }
-            100% { text-shadow: 2px 2px var(--neon-pink); }
-        }
-
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        @keyframes loading { to { left: 100%; } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-20px); } }
     </style>
 </head>
-<body>
+<body onclick="initAudio()">
 
-    <audio id="bgm" loop>
-        <source src="music.mp3" type="audio/mpeg">
-    </audio>
+    <audio id="bgm" loop preload="auto"><source src="music.mp3" type="audio/mpeg"></audio>
 
-    <div id="quiz-container">
-        <div class="title-glitch">
-            [ SYSTEM INQUIRY ]<br>
-            DO YOU WANT TO JOIN FDS MINI CONCERT?
+    <!-- PAGE 1: INITIALIZE -->
+    <div id="page1" class="page active">
+        <div style="font-size: 0.7rem; opacity: 0.5;">[ SYSTEM_INITIALIZING... ]</div>
+        <h1 style="letter-spacing: 8px; text-shadow: 0 0 15px var(--neon);">ERA:X—404</h1>
+        <div class="loader-bar"></div>
+        <button onclick="goToPage(2)">ENTER TERMINAL</button>
+    </div>
+
+    <!-- PAGE 2: CHOICE -->
+    <div id="page2" class="page">
+        <div style="margin-bottom: 45px; line-height: 1.6; font-size: 1.1rem;">
+            >>> AUTHENTICATING DESIRE...<br>
+            你想不想来 FDS MINI CONCERT?
         </div>
         <div class="btn-group">
-            <button id="superYesBtn" onclick="grantAccess()">
-                ABSOLUTELY YES / 超级想
-            </button>
-            <button id="normalYesBtn" onclick="forceLove()">
-                YES / 想
-            </button>
+            <!-- “想”在上面 -->
+            <button id="normalYesBtn" onclick="forceLove(event)">YES / 想</button>
+            <!-- “超级想”在下面 -->
+            <button id="superYesBtn" onclick="goToPage(3)">ABSOLUTELY YES / 超级想</button>
         </div>
     </div>
 
-    <div id="finalMessage">
-        <div class="status-header">>>> ERROR: REALITY_OFFLINE [ STATUS: UNKNOWN ]</div>
+    <!-- PAGE 3: FINAL TICKET -->
+    <div id="page3" class="page">
+        <div style="color:var(--pink); font-weight:bold; margin-bottom: 10px;">[ SYNC_COMPLETE ]</div>
         <div class="content-box">
-恭喜你，成功捕捉到这条跳动的代码。
-现实世界已掉线，欢迎进入《ERA:X—404》缓存区。
-这里的规则只有一条：停止思考，开始跳舞。
-请就座，数据同步即将完成。
+            恭喜你，成功捕捉到这条跳动的代码。
+            现实世界已掉线，欢迎进入《ERA:X—404》缓存区。
+            这里的规则只有一条：停止思考，开始跳舞。
+            请就座，数据同步即将完成。
 
-Congratulations, you have successfully captured this pulsing code.
-The real world is offline. Welcome to the ERA:X—404 buffer zone.
-Only one rule here: stop thinking, start dancing.
-Please take your seat. Data synchronization is almost complete.
+            Congratulations, you have successfully captured this pulsing code.
+            The real world is offline. Welcome to the ERA:X—404 buffer zone.
         </div>
-        
-        <div class="poster-box">
-            <img src="poster.jpg" alt="ERA:X-404">
-        </div>
-        
-        <div style="margin-top:20px; font-size: 1.1rem; text-shadow: 0 0 10px var(--neon-green);">
-            >> I MISS YOU TOO.
-        </div>
+        <div class="poster-box"><img src="poster.jpg" alt="ERA:X-404"></div>
+        <div id="dancerID" class="dancer-id"></div>
+        <div style="font-weight: bold; margin-bottom: 50px; font-size: 1.2rem;">>> 我也想你 / I MISS YOU TOO.</div>
     </div>
 
     <script>
         let scale = 1;
         const audio = document.getElementById('bgm');
-        const superBtn = document.getElementById('superYesBtn');
-        const normalBtn = document.getElementById('normalYesBtn');
+        let audioUnlocked = false;
 
-        function playMusic() {
-            audio.play().catch(e => console.log("Waiting for sync..."));
+        // 核心：点击任何地方解锁音频
+        function initAudio() {
+            if (!audioUnlocked) {
+                audio.play().then(() => {
+                    audioUnlocked = true;
+                    console.log("Audio Active");
+                }).catch(e => console.log("Audio Auth Pending"));
+            }
         }
 
-        function forceLove() {
-            playMusic();
-            scale += 0.7;
-            superBtn.style.transform = `scale(${scale})`;
-            superBtn.style.boxShadow = `0 0 ${scale * 20}px var(--neon-green)`;
+        function goToPage(num) {
+            initAudio(); // 确保跳转时也尝试播放
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            const targetPage = document.getElementById('page' + num);
+            targetPage.classList.add('active');
+
+            // 如果是最后一页，生成ID
+            if(num === 3) {
+                const randomID = Math.floor(Math.random() * 89999) + 11111;
+                document.getElementById('dancerID').innerText = `ACCESS_TOKEN: #${randomID}_SYNC_SUCCESS`;
+                window.scrollTo(0,0);
+            }
+        }
+
+        function forceLove(e) {
+            e.stopPropagation();
+            initAudio();
             
-            const errorCodes = ["DENIED", "INSUFFICIENT", "ACCESS_ERR", "404", "RETRY"];
-            normalBtn.innerText = errorCodes[Math.floor(Math.random() * errorCodes.length)];
-        }
+            // 报错视觉反馈
+            const warn = document.createElement('div');
+            warn.className = 'warning-popup';
+            const errors = ["SYSTEM_OVERLOAD", "ACCESS_DENIED", "404_NOT_FOUND", "DESIRE_ERROR"];
+            warn.innerText = errors[Math.floor(Math.random()*errors.length)];
+            warn.style.left = Math.random() * 70 + 15 + '%';
+            warn.style.top = Math.random() * 70 + 15 + '%';
+            document.body.appendChild(warn);
+            setTimeout(() => warn.remove(), 1000);
 
-        function grantAccess() {
-            playMusic();
-            document.getElementById('quiz-container').style.display = 'none';
-            document.getElementById('finalMessage').style.display = 'block';
-            window.scrollTo(0, 0);
-        }
+            // 让下面的按钮变大
+            scale += 0.8;
+            const superBtn = document.getElementById('superYesBtn');
+            superBtn.style.transform = `scale(${scale})`;
+            
+            // 改变色调
+            document.getElementById('page2').style.filter = `hue-rotate(${scale * 15}deg)`;
 
-        document.body.addEventListener('touchstart', playMusic, { once: true });
-        document.body.addEventListener('click', playMusic, { once: true });
+            // 改变文字
+            const msgs = ["DENIED", "RETRY", "LIMIT", "FAIL"];
+            document.getElementById('normalYesBtn').innerText = msgs[Math.floor(Math.random()*msgs.length)];
+        }
     </script>
 </body>
 </html>
-  
 
        
