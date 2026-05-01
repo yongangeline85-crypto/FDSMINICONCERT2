@@ -2,34 +2,56 @@
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ERA:X—404 | ACCESSING...</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ERA:X—404 | NEON PROTOCOL</title>
     <style>
+        :root {
+            --neon-green: #00ff41;
+            --neon-pink: #ff003c;
+            --bg-black: #050505;
+        }
+
         body {
             margin: 0;
             padding: 0;
-            background-color: #050505; /* 纯黑背景 */
-            color: #00ff41; /* 经典黑客绿 */
+            background-color: var(--bg-black);
+            color: var(--neon-green);
             font-family: 'Courier New', Courier, monospace;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            overflow-x: hidden;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        /* 扫描线效果 */
+        body::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 100;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
         }
 
         #quiz-container {
             text-align: center;
             padding: 20px;
-            transition: all 0.5s ease;
+            z-index: 10;
         }
 
         .title-glitch {
-            font-size: 1.5rem;
+            font-size: 1.4rem;
+            font-weight: bold;
             margin-bottom: 40px;
-            line-height: 1.8;
-            text-shadow: 2px 2px 10px rgba(0, 255, 65, 0.5);
+            line-height: 1.6;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px var(--neon-green);
+            animation: glitch 1s linear infinite;
         }
 
         .btn-group {
@@ -39,105 +61,114 @@
             gap: 25px;
         }
 
-        /* 基础按钮样式 */
         button {
             padding: 15px 40px;
-            border: 1px solid #00ff41;
+            border: 1px solid var(--neon-green);
             background: transparent;
-            color: #00ff41;
+            color: var(--neon-green);
             font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
             cursor: pointer;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 3px;
             transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border-radius: 2px;
+            position: relative;
         }
 
-        /* 超级想按钮 - 重点样式 */
         #superYesBtn {
-            background: rgba(0, 255, 65, 0.1);
-            font-weight: bold;
+            background: rgba(0, 255, 65, 0.05);
             box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
-            z-index: 999;
         }
 
         #superYesBtn:hover {
-            background: #00ff41;
+            background: var(--neon-green);
             color: #000;
-            box-shadow: 0 0 30px #00ff41;
+            box-shadow: 0 0 40px var(--neon-green);
         }
 
-        /* 消息显示区域 */
+        #normalYesBtn {
+            border-color: #444;
+            color: #666;
+            font-size: 0.8rem;
+        }
+
+        /* 最终消息框 */
         #finalMessage {
             display: none;
             width: 85%;
-            max-width: 600px;
-            text-align: left;
-            padding: 20px;
-            border-left: 3px solid #00ff41;
-            background: rgba(0, 255, 65, 0.05);
-            animation: scan 1s steps(40) forwards;
+            max-width: 500px;
+            padding: 25px;
+            border: 1px solid var(--neon-green);
+            background: rgba(0, 255, 65, 0.02);
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.1);
+            position: relative;
         }
 
         .status-header {
-            color: #ff003c; /* 警示红 */
-            font-weight: bold;
+            color: var(--neon-pink);
+            font-size: 0.9rem;
             margin-bottom: 20px;
-            text-decoration: blink;
+            text-shadow: 0 0 5px var(--neon-pink);
+            letter-spacing: 2px;
         }
 
-        .typing-text {
+        .content-box {
             white-space: pre-line;
             line-height: 1.8;
-            font-size: 0.9rem;
-            color: #d1d5db; /* 浅灰色文字 */
+            font-size: 0.85rem;
+            color: var(--neon-green);
+            text-align: left;
         }
 
-        .img-container {
-            margin-top: 30px;
-            width: 100%;
-            border: 1px solid #333;
+        .poster-box {
+            margin-top: 25px;
+            border: 1px solid var(--neon-green);
+            padding: 5px;
+            background: #000;
         }
 
-        .img-container img {
+        .poster-box img {
             width: 100%;
             display: block;
-            filter: sepia(100%) hue-rotate(90deg) brightness(80%); /* 图片绿化处理 */
+            filter: contrast(120%) brightness(80%) sepia(100%) hue-rotate(80deg);
         }
 
-        @keyframes scan {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* 故障动画 */
+        @keyframes glitch {
+            0% { text-shadow: 2px 2px var(--neon-pink); }
+            25% { text-shadow: -2px -2px var(--neon-pink); }
+            50% { text-shadow: 2px -2px var(--neon-pink); }
+            75% { text-shadow: -2px 2px var(--neon-pink); }
+            100% { text-shadow: 2px 2px var(--neon-pink); }
         }
+
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
     </style>
 </head>
 <body>
 
-    <!-- 音乐文件 -->
-    <audio id="audioPlayer" loop>
+    <audio id="bgm" loop>
         <source src="music.mp3" type="audio/mpeg">
     </audio>
 
-    <!-- 第一阶段：选择题 -->
     <div id="quiz-container">
         <div class="title-glitch">
-            你想不想来 FDS MINI CONCERT?<br>
+            [ SYSTEM INQUIRY ]<br>
             DO YOU WANT TO JOIN FDS MINI CONCERT?
         </div>
         <div class="btn-group">
             <button id="superYesBtn" onclick="grantAccess()">
-                超级想 / ABSOLUTELY YES
+                ABSOLUTELY YES / 超级想
             </button>
-            <button id="normalYesBtn" onclick="systemError()">
-                想 / YES
+            <button id="normalYesBtn" onclick="forceLove()">
+                YES / 想
             </button>
         </div>
     </div>
 
-    <!-- 第二阶段：最终话 -->
     <div id="finalMessage">
-        <div class="status-header">[ 状态：未知 | STATUS: UNKNOWN ]</div>
-        <div class="typing-text">
+        <div class="status-header">>>> ERROR: REALITY_OFFLINE [ STATUS: UNKNOWN ]</div>
+        <div class="content-box">
 恭喜你，成功捕捉到这条跳动的代码。
 现实世界已掉线，欢迎进入《ERA:X—404》缓存区。
 这里的规则只有一条：停止思考，开始跳舞。
@@ -149,84 +180,47 @@ Only one rule here: stop thinking, start dancing.
 Please take your seat. Data synchronization is almost complete.
         </div>
         
-        <!-- 这里是你的海报图片 -->
-        <div class="img-container">
-            <img src="poster.jpg" alt="ERA:X-404 Poster">
+        <div class="poster-box">
+            <img src="poster.jpg" alt="ERA:X-404">
         </div>
         
-        <div style="margin-top:20px; color:#00ff41; font-size: 0.8rem;">
-            >>我也想你 / I MISS YOU TOO.
+        <div style="margin-top:20px; font-size: 1.1rem; text-shadow: 0 0 10px var(--neon-green);">
+            >> I MISS YOU TOO.
         </div>
     </div>
 
     <script>
         let scale = 1;
-        let normalBtn = document.getElementById('normalYesBtn');
-        let superBtn = document.getElementById('superYesBtn');
-        let audio = document.getElementById('audioPlayer');
+        const audio = document.getElementById('bgm');
+        const superBtn = document.getElementById('superYesBtn');
+        const normalBtn = document.getElementById('normalYesBtn');
 
-        // 当点击“想”的时候，超级想按钮会变大
-        function systemError() {
-            scale += 0.5;
-            superBtn.style.transform = `scale(${scale})`;
-            
-            // 改变“想”按钮的文字
-            const errors = ["ERROR", "ACCESS DENIED", "INSUFFICIENT DESIRE", "404 NOT FOUND"];
-            normalBtn.innerText = errors[Math.floor(Math.random() * errors.length)];
-            
-            // 增加一点震动感
-            superBtn.style.boxShadow = `0 0 ${scale * 20}px #00ff41`;
+        function playMusic() {
+            audio.play().catch(e => console.log("Waiting for sync..."));
         }
 
-        // 当点击“超级想”时进入下一页
-        function grantAccess() {
-            // 尝试播放音乐
-            audio.play().catch(() => {
-                console.log("Audio needs user interaction first.");
-            });
+        function forceLove() {
+            playMusic();
+            scale += 0.7;
+            superBtn.style.transform = `scale(${scale})`;
+            superBtn.style.boxShadow = `0 0 ${scale * 20}px var(--neon-green)`;
+            
+            const errorCodes = ["DENIED", "INSUFFICIENT", "ACCESS_ERR", "404", "RETRY"];
+            normalBtn.innerText = errorCodes[Math.floor(Math.random() * errorCodes.length)];
+        }
 
+        function grantAccess() {
+            playMusic();
             document.getElementById('quiz-container').style.display = 'none';
             document.getElementById('finalMessage').style.display = 'block';
+            window.scrollTo(0, 0);
         }
+
+        document.body.addEventListener('touchstart', playMusic, { once: true });
+        document.body.addEventListener('click', playMusic, { once: true });
     </script>
 </body>
 </html>
-let scale = 1;
-    let audio = document.getElementById('audioPlayer');
-    let hasInteracted = false;
+  
 
-    // 核心：只要用户触摸或点击页面任何地方，立刻解锁音频
-    function unlockAudio() {
-        if (!hasInteracted) {
-            audio.play().then(() => {
-                hasInteracted = true;
-                console.log("Audio unlocked!");
-            }).catch(e => console.log("Still waiting for interaction"));
-        }
-    }
-
-    // 监听全局点击和触摸
-    document.body.addEventListener('click', unlockAudio);
-    document.body.addEventListener('touchstart', unlockAudio);
-
-    function systemError() {
-        // 解锁音频
-        unlockAudio();
-        
-        scale += 0.5;
-        let superBtn = document.getElementById('superYesBtn');
-        superBtn.style.transform = `scale(${scale})`;
-        
-        const errors = ["ERROR", "ACCESS DENIED", "INSUFFICIENT DESIRE", "RETRY"];
-        document.getElementById('normalYesBtn').innerText = errors[Math.floor(Math.random() * errors.length)];
-        
-        // 增加震动感
-        superBtn.style.boxShadow = `0 0 ${scale * 15}px #00ff41`;
-    }
-
-    function grantAccess() {
-        // 确保进入第二页时音乐一定在响
-        audio.play(); 
-        document.getElementById('quiz-container').style.display = 'none';
-        document.getElementById('finalMessage').style.display = 'block';
-    }
+       
