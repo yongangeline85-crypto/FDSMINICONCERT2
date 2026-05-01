@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERA:X—404 | ACCESSING...</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #050505; /* 纯黑背景 */
+            color: #00ff41; /* 经典黑客绿 */
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #quiz-container {
+            text-align: center;
+            padding: 20px;
+            transition: all 0.5s ease;
+        }
+
+        .title-glitch {
+            font-size: 1.5rem;
+            margin-bottom: 40px;
+            line-height: 1.8;
+            text-shadow: 2px 2px 10px rgba(0, 255, 65, 0.5);
+        }
+
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+        }
+
+        /* 基础按钮样式 */
+        button {
+            padding: 15px 40px;
+            border: 1px solid #00ff41;
+            background: transparent;
+            color: #00ff41;
+            font-family: 'Courier New', Courier, monospace;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border-radius: 2px;
+        }
+
+        /* 超级想按钮 - 重点样式 */
+        #superYesBtn {
+            background: rgba(0, 255, 65, 0.1);
+            font-weight: bold;
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
+            z-index: 999;
+        }
+
+        #superYesBtn:hover {
+            background: #00ff41;
+            color: #000;
+            box-shadow: 0 0 30px #00ff41;
+        }
+
+        /* 消息显示区域 */
+        #finalMessage {
+            display: none;
+            width: 85%;
+            max-width: 600px;
+            text-align: left;
+            padding: 20px;
+            border-left: 3px solid #00ff41;
+            background: rgba(0, 255, 65, 0.05);
+            animation: scan 1s steps(40) forwards;
+        }
+
+        .status-header {
+            color: #ff003c; /* 警示红 */
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-decoration: blink;
+        }
+
+        .typing-text {
+            white-space: pre-line;
+            line-height: 1.8;
+            font-size: 0.9rem;
+            color: #d1d5db; /* 浅灰色文字 */
+        }
+
+        .img-container {
+            margin-top: 30px;
+            width: 100%;
+            border: 1px solid #333;
+        }
+
+        .img-container img {
+            width: 100%;
+            display: block;
+            filter: sepia(100%) hue-rotate(90deg) brightness(80%); /* 图片绿化处理 */
+        }
+
+        @keyframes scan {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 音乐文件 -->
+    <audio id="audioPlayer" loop>
+        <source src="music.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- 第一阶段：选择题 -->
+    <div id="quiz-container">
+        <div class="title-glitch">
+            你想不想来 FDS MINI CONCERT?<br>
+            DO YOU WANT TO JOIN FDS MINI CONCERT?
+        </div>
+        <div class="btn-group">
+            <button id="superYesBtn" onclick="grantAccess()">
+                超级想 / ABSOLUTELY YES
+            </button>
+            <button id="normalYesBtn" onclick="systemError()">
+                想 / YES
+            </button>
+        </div>
+    </div>
+
+    <!-- 第二阶段：最终话 -->
+    <div id="finalMessage">
+        <div class="status-header">[ 状态：未知 | STATUS: UNKNOWN ]</div>
+        <div class="typing-text">
+恭喜你，成功捕捉到这条跳动的代码。
+现实世界已掉线，欢迎进入《ERA:X—404》缓存区。
+这里的规则只有一条：停止思考，开始跳舞。
+请就座，数据同步即将完成。
+
+Congratulations, you have successfully captured this pulsing code.
+The real world is offline. Welcome to the ERA:X—404 buffer zone.
+Only one rule here: stop thinking, start dancing.
+Please take your seat. Data synchronization is almost complete.
+        </div>
+        
+        <!-- 这里是你的海报图片 -->
+        <div class="img-container">
+            <img src="poster.jpg" alt="ERA:X-404 Poster">
+        </div>
+        
+        <div style="margin-top:20px; color:#00ff41; font-size: 0.8rem;">
+            >>我也想你 / I MISS YOU TOO.
+        </div>
+    </div>
+
+    <script>
+        let scale = 1;
+        let normalBtn = document.getElementById('normalYesBtn');
+        let superBtn = document.getElementById('superYesBtn');
+        let audio = document.getElementById('audioPlayer');
+
+        // 当点击“想”的时候，超级想按钮会变大
+        function systemError() {
+            scale += 0.5;
+            superBtn.style.transform = `scale(${scale})`;
+            
+            // 改变“想”按钮的文字
+            const errors = ["ERROR", "ACCESS DENIED", "INSUFFICIENT DESIRE", "404 NOT FOUND"];
+            normalBtn.innerText = errors[Math.floor(Math.random() * errors.length)];
+            
+            // 增加一点震动感
+            superBtn.style.boxShadow = `0 0 ${scale * 20}px #00ff41`;
+        }
+
+        // 当点击“超级想”时进入下一页
+        function grantAccess() {
+            // 尝试播放音乐
+            audio.play().catch(() => {
+                console.log("Audio needs user interaction first.");
+            });
+
+            document.getElementById('quiz-container').style.display = 'none';
+            document.getElementById('finalMessage').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
